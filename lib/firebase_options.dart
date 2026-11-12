@@ -1,13 +1,4 @@
-// ARCHIVO DE CONFIGURACIÓN DE FIREBASE
-//
-// Opción A (recomendada): ejecute en la carpeta del proyecto
-//     dart pub global activate flutterfire_cli
-//     flutterfire configure
-// y este archivo se reemplazará automáticamente con los datos de su proyecto.
-//
-// Opción B: copie manualmente los valores desde
-//     Consola de Firebase > Configuración del proyecto > Tus apps > App Android
-// y reemplace los textos que empiezan por "TU_".
+// Configuración de Firebase para APP-Conecta con Pijiño.
 
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
@@ -27,10 +18,10 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'TU_API_KEY',
-    appId: 'TU_APP_ID',
-    messagingSenderId: 'TU_SENDER_ID',
-    projectId: 'TU_PROJECT_ID',
-    storageBucket: 'TU_PROJECT_ID.firebasestorage.app',
+    apiKey: 'AIzaSyBdY8ke9QXDfQsPsrFPjCH16vqDqn_nXA4',
+    appId: '1:650666958466:android:11cd887f4b494336e09e9b',
+    messagingSenderId: '650666958466',
+    projectId: 'conecta-con-pijino',
+    storageBucket: 'conecta-con-pijino.firebasestorage.app',
   );
 }
