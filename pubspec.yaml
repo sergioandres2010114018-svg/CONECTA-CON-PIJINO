@@ -1,0 +1,48 @@
+name: conecta_pijino
+description: "APP-Conecta con Pijiño: historia, cultura, gastronomía, fiestas y turismo de Pijiño del Carmen (Magdalena)."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.5.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase: autenticación, base de datos y almacenamiento de fotos/videos
+  firebase_core: ^4.0.0
+  firebase_auth: ^6.0.0
+  cloud_firestore: ^6.0.0
+  firebase_storage: ^13.0.0
+
+  # Estado y preferencias
+  provider: ^6.1.2
+  shared_preferences: ^2.3.2
+
+  # Multimedia
+  image_picker: ^1.1.2
+  cached_network_image: ^3.4.1
+  video_player: ^2.9.2
+
+  # Mapas (OpenStreetMap, no requiere API key) y enlaces
+  flutter_map: ^8.0.0
+  latlong2: ^0.9.1
+  url_launcher: ^6.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/icon.png"
+  min_sdk_android: 24

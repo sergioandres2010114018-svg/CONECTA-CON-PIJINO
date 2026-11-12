@@ -1,0 +1,74 @@
+rules_version = '2';
+
+// Reglas de seguridad de Cloud Firestore para APP-Conecta con Pijiño.
+// Publíquelas en: Consola de Firebase > Firestore Database > Reglas.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Mantenga esta lista igual a AppConfig.adminEmails (lib/config.dart).
+    function adminPorCorreo() {
+      return signedIn() && request.auth.token.email != null &&
+        request.auth.token.email.lower() in ['sergioandres2010114018@gmail.com'];
+    }
+
+    function adminPorRol() {
+      return signedIn() &&
+        exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin';
+    }
+
+    function isAdmin() {
+      return adminPorCorreo() || adminPorRol();
+    }
+
+    // ---------- Usuarios registrados ----------
+    match /usuarios/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      // Al registrarse, nadie puede darse a sí mismo el rol de administrador.
+      allow create: if signedIn() && request.auth.uid == uid
+                    && request.resource.data.rol == 'usuario';
+      // El usuario puede editar sus datos, pero no cambiar su rol.
+      allow update: if (signedIn() && request.auth.uid == uid
+                        && request.resource.data.rol == resource.data.rol)
+                    || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ---------- Contenidos informativos ----------
+    match /contenidos/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---------- Directorio ----------
+    match /negocios/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // ---------- Galería de fotos y videos ----------
+    match /galeria/{id} {
+      allow read: if signedIn() && (
+        resource.data.aprobado == true ||
+        resource.data.autorUid == request.auth.uid ||
+        isAdmin()
+      );
+      // Cualquier usuario puede aportar; queda pendiente de aprobación.
+      allow create: if signedIn()
+                    && request.resource.data.autorUid == request.auth.uid
+                    && (request.resource.data.aprobado == false || isAdmin());
+      allow update: if isAdmin();
+      allow delete: if isAdmin() || (signedIn() && resource.data.autorUid == request.auth.uid);
+    }
+
+    // ---------- Mensajes de contacto y participación ----------
+    match /mensajes/{id} {
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid;
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

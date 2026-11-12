@@ -1,0 +1,36 @@
+rules_version = '2';
+
+// Reglas de Firebase Storage (fotos y videos).
+// Publíquelas en: Consola de Firebase > Storage > Reglas.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Mantenga esta lista igual a AppConfig.adminEmails (lib/config.dart).
+    function isAdmin() {
+      return signedIn() && request.auth.token.email != null &&
+        request.auth.token.email.lower() in ['sergioandres2010114018@gmail.com'];
+    }
+
+    // Aportes de los usuarios: cada uno escribe solo en su carpeta.
+    match /galeria/{uid}/{archivo} {
+      allow read: if signedIn();
+      allow create: if signedIn() && request.auth.uid == uid
+        && (
+          (request.resource.contentType.matches('image/.*') && request.resource.size < 10 * 1024 * 1024) ||
+          (request.resource.contentType.matches('video/.*') && request.resource.size < 50 * 1024 * 1024)
+        );
+      allow delete: if isAdmin() || (signedIn() && request.auth.uid == uid);
+    }
+
+    // Imágenes de las publicaciones (solo administradores).
+    match /contenidos/{archivo} {
+      allow read: if signedIn();
+      allow write: if isAdmin() && request.resource.size < 10 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+  }
+}
