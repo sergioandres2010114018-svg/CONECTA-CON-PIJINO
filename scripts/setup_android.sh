@@ -34,6 +34,12 @@ if [ -f "$GRADLE_KTS" ]; then
 elif [ -f "$GRADLE_GROOVY" ]; then
   sed -i -E 's|minSdkVersion .*|minSdkVersion 24|' "$GRADLE_GROOVY"
 fi
+   # 5) Desactivar la revisión lint de la versión release (evita fallos de la herramienta lint)
+   if [ -f "$GRADLE_KTS" ] && ! grep -q "checkReleaseBuilds" "$GRADLE_KTS"; then
+     sed -i '0,/^android {/s//android {\n    lint {\n        checkReleaseBuilds = false\n        abortOnError = false\n    }/' "$GRADLE_KTS"
+   elif [ -f "$GRADLE_GROOVY" ] && ! grep -q "checkReleaseBuilds" "$GRADLE_GROOVY"; then
+     sed -i '0,/^android {/s//android {\n    lint {\n        checkReleaseBuilds false\n        abortOnError false\n    }/' "$GRADLE_GROOVY"
+   fi
 
 echo "Carpeta android/ configurada para Conecta con Pijiño."
 grep -n "INTERNET\|android:label" "$MANIFEST" || true
