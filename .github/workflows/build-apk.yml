@@ -1,0 +1,56 @@
+# Compila automáticamente el APK de Conecta con Pijiño en GitHub.
+# Cada vez que suba cambios a la rama main (o al pulsar "Run workflow"),
+# el APK queda disponible en la pestaña Actions > (última ejecución) > Artifacts.
+name: Construir APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Instalar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Instalar Flutter (estable)
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Generar carpeta android
+        run: flutter create --platforms=android --org co.edu.iedtpijino .
+
+      - name: Configurar android (permisos, nombre, minSdk)
+        run: bash scripts/setup_android.sh
+
+      - name: Dependencias
+        run: flutter pub get
+
+      - name: Ícono de la app
+        run: dart run flutter_launcher_icons
+
+      - name: Análisis de código
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Compilar APK
+        run: flutter build apk --release
+
+      - name: Renombrar APK
+        run: cp build/app/outputs/flutter-apk/app-release.apk conecta-con-pijino.apk
+
+      - name: Publicar APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: conecta-con-pijino-apk
+          path: conecta-con-pijino.apk
